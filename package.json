@@ -12,5 +12,8 @@
   "type": "commonjs",
   "devDependencies": {
     "vite": "^8.0.10"
+  },
+  "dependencies": {
+    "pixi.js": "^8.18.1"
   }
 }
