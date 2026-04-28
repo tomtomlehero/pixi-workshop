@@ -1,4 +1,4 @@
-import {Application, Graphics} from "pixi.js";
+import {Application, Graphics, Assets, Sprite} from "pixi.js";
 
 (async() => {
 
@@ -13,7 +13,7 @@ import {Application, Graphics} from "pixi.js";
         backgroundAlpha: 0.9,
         // antialias: true,
     });
-    // app.canvas.style.position = "absolute";
+    app.canvas.style.position = "absolute";
     document.body.appendChild(app.canvas);
 
     const c = new Graphics()
@@ -26,5 +26,36 @@ import {Application, Graphics} from "pixi.js";
             color: 0xff0000,
             alpha: 0.7});
     app.stage.addChild(c);
+
+    const floppyTexture = await Assets.load("/img/floppy.svg");
+    const floppySprite = new Sprite(floppyTexture);
+    floppySprite.anchor.set(0.5);
+    floppySprite.position.set(50, 50);
+    // floppySprite.scale.set(2);
+    // floppySprite.width = 100;
+    // floppySprite.rotation = Math.PI / 4;
+
+    app.stage.addChild(floppySprite);
+
+
+    window.addEventListener('keydown', function(e) {
+        switch(e.key) {
+            case 'ArrowRight': {
+                floppySprite.x += 10;
+                break;
+            }
+            case 'ArrowLeft': {
+                floppySprite.x -= 10;
+                break;
+            }
+            case 'ArrowUp': {
+                floppySprite.y -= 10;
+                break;
+            }
+            case 'ArrowDown': {
+                floppySprite.y += 10; }
+        }
+    });
+
 
 })();
