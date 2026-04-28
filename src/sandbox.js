@@ -36,7 +36,17 @@ import {Application, Graphics, Assets, Sprite} from "pixi.js";
     // floppySprite.rotation = Math.PI / 4;
 
     app.stage.addChild(floppySprite);
+    let direction = 1;
 
+    app.ticker.add(() => {
+        if (floppySprite.x > 300) {
+            direction = -1;
+        }
+        if (floppySprite.x < 50) {
+            direction = 1;
+        }
+        floppySprite.x += direction;
+    });
 
     window.addEventListener('keydown', function(e) {
         switch(e.key) {
