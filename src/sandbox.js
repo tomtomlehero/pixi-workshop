@@ -1,4 +1,4 @@
-import {Application, Graphics, Assets, Sprite} from "pixi.js";
+import {Application, Graphics, Assets, Sprite, Ticker} from "pixi.js";
 
 (async() => {
 
@@ -16,37 +16,33 @@ import {Application, Graphics, Assets, Sprite} from "pixi.js";
     app.canvas.style.position = "absolute";
     document.body.appendChild(app.canvas);
 
-    const c = new Graphics()
-        .circle(200, 200, 50)
-        .fill({
-            color: 0x0000ff,
-            alpha: 0.7})
-        .stroke({
-            width: 6,
-            color: 0xff0000,
-            alpha: 0.7});
-    app.stage.addChild(c);
-
     const floppyTexture = await Assets.load("/img/floppy.svg");
     const floppySprite = new Sprite(floppyTexture);
     floppySprite.anchor.set(0.5);
     floppySprite.position.set(50, 50);
-    // floppySprite.scale.set(2);
-    // floppySprite.width = 100;
-    // floppySprite.rotation = Math.PI / 4;
 
     app.stage.addChild(floppySprite);
     let direction = 1;
+    let speed = 5;
 
-    app.ticker.add(() => {
-        if (floppySprite.x > 300) {
+
+    let floppyTicker = new Ticker();
+    floppyTicker.add(ticker => {
+        // console.log(ticker.lastTime);
+        if (ticker.lastTime > 5000) {
+            ticker.stop();
+        }
+        if (floppySprite.y > 500) {
             direction = -1;
         }
-        if (floppySprite.x < 50) {
+        if (floppySprite.y < 50) {
             direction = 1;
         }
-        floppySprite.x += direction;
+        floppySprite.y += speed * direction;
+        floppySprite.rotation += 2 * Math.PI / 360;
     });
+
+    floppyTicker.start();
 
     window.addEventListener('keydown', function(e) {
         switch(e.key) {
