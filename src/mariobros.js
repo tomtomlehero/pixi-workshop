@@ -4,22 +4,49 @@ import {Application, Graphics, Assets, Sprite, Ticker} from "pixi.js";
 
     const app = new Application();
     await app.init({
-        width: 800,
-        height: 600,
+        width: 1110,
+        height: 360,
         // width: window.innerWidth,
         // height: window.innerHeight,
         // resizeTo: window,
         backgroundColor: 0xaaaaaa,
-        backgroundAlpha: 0.9,
+        // backgroundAlpha: 0.9,
         // antialias: true,
     });
     app.canvas.style.position = "absolute";
     document.body.appendChild(app.canvas);
 
-    const boxTexture = await Assets.load("/img/box.svg");
-    const boxSprite = BoxSprite(150, 100);
 
-    app.stage.addChild(boxSprite);
+    const backgroundTexture = await Assets.load("/img/background.png");
+    console.log("w " + backgroundTexture.width + " (" + 2.4 * backgroundTexture.width + ")");
+    console.log("h " + backgroundTexture.height + " (" + 2.4 * backgroundTexture.height + ")");
+    const backgroundSprite = new Sprite({
+        texture: backgroundTexture,
+        scale: 2
+        // anchor: 0.5,
+        // position: { x: x, y: y }
+    });
+    console.log("w " + backgroundSprite.width);
+    console.log("h " + backgroundSprite.height);
+
+
+    const w = backgroundSprite.width;
+    const h = backgroundSprite.height;
+
+    const boxTexture = await Assets.load("/img/box.svg");
+    const boxSprites = [
+        BoxSprite(0.440 * w, 0.250 * h),
+        BoxSprite(0.395 * w, 0.250 * h),
+        BoxSprite(0.350 * w, 0.250 * h),
+        BoxSprite(0.300 * w, 0.250 * h, -Math.PI / 12),
+    ];
+    // const boxSprite = BoxSprite(0,0);
+
+    app.stage.addChild(backgroundSprite);
+
+    boxSprites.forEach((box) => {
+        app.stage.addChild(box);
+    })
 
 
 
@@ -34,25 +61,25 @@ import {Application, Graphics, Assets, Sprite, Ticker} from "pixi.js";
     floppyTicker.maxFPS = 10;
     // floppyTicker.minFPS = 1;
     floppyTicker.add(ticker => {
-        console.log("deltaTime=" + floppyTicker.deltaTime);
-        console.log("deltaMS=" + floppyTicker.deltaMS);
-        console.log("elapsedMS=" + floppyTicker.elapsedMS);
-        console.log("lastTime=" + floppyTicker.lastTime);
-        console.log("targetFPMS=" + Ticker.targetFPMS);
-        console.log("maxFPS=" + floppyTicker.maxFPS);
-        console.log("minFPS=" + floppyTicker.minFPS);
-        console.log("--------------------------------");
+        // console.log("deltaTime=" + floppyTicker.deltaTime);
+        // console.log("deltaMS=" + floppyTicker.deltaMS);
+        // console.log("elapsedMS=" + floppyTicker.elapsedMS);
+        // console.log("lastTime=" + floppyTicker.lastTime);
+        // console.log("targetFPMS=" + Ticker.targetFPMS);
+        // console.log("maxFPS=" + floppyTicker.maxFPS);
+        // console.log("minFPS=" + floppyTicker.minFPS);
+        // console.log("--------------------------------");
 
         // if (ticker.lastTime > 10000) {
         //     ticker.stop();
         // }
-        if (boxSprite.y > 250) {
+        if (boxSprites.y > 250) {
             direction = -1;
         }
-        if (boxSprite.y <= 50) {
+        if (boxSprites.y <= 50) {
             direction = 1;
         }
-        boxSprite.y += (100 / 1000) * ticker.deltaMS * direction;
+        boxSprites.y += (100 / 1000) * ticker.deltaMS * direction;
         // floppySprite.rotation += 2 * Math.PI / 360;
 
         // if (floppyTicker.maxFPS < 60) {
@@ -60,33 +87,35 @@ import {Application, Graphics, Assets, Sprite, Ticker} from "pixi.js";
         // }
     });
 
-    floppyTicker.start();
+    // floppyTicker.start();
 
     window.addEventListener('keydown', function(e) {
         switch(e.key) {
             case 'ArrowRight': {
-                boxSprite.x += 10;
+                boxSprites.x += 10;
                 break;
             }
             case 'ArrowLeft': {
-                boxSprite.x -= 10;
+                boxSprites.x -= 10;
                 break;
             }
             case 'ArrowUp': {
-                boxSprite.y -= 10;
+                boxSprites.y -= 10;
                 break;
             }
             case 'ArrowDown': {
-                boxSprite.y += 10; }
+                boxSprites.y += 10; }
         }
     });
 
 
 
-    function BoxSprite(x, y) {
+    function BoxSprite(x, y, r) {
         return new Sprite({
             texture: boxTexture,
             anchor: 0.5,
+            scale: 2 / 2.4,
+            rotation: r,
             position: { x: x, y: y }
         });
     }
