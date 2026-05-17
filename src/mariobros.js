@@ -1,124 +1,181 @@
-import {Application, Graphics, Assets, Sprite, Ticker} from "pixi.js";
+import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from "pixi.js";
 
-(async() => {
+(async () => {
 
-    const app = new Application();
-    await app.init({
-        width: 1110,
-        height: 360,
-        // width: window.innerWidth,
-        // height: window.innerHeight,
-        // resizeTo: window,
-        backgroundColor: 0xaaaaaa,
-        // backgroundAlpha: 0.9,
-        // antialias: true,
-    });
-    app.canvas.style.position = "absolute";
-    document.body.appendChild(app.canvas);
+  const app = new Application();
+  await app.init({
+    // width: 1110,
+    // height: 360,
+    backgroundColor: 0xaaaaaa,
+    resizeTo: window,
+  });
+  app.canvas.style.position = "absolute";
+  document.body.appendChild(app.canvas);
 
+  const scale = 2.4;
 
-    const backgroundTexture = await Assets.load("/img/background.png");
-    console.log("w " + backgroundTexture.width + " (" + 2.4 * backgroundTexture.width + ")");
-    console.log("h " + backgroundTexture.height + " (" + 2.4 * backgroundTexture.height + ")");
-    const backgroundSprite = new Sprite({
-        texture: backgroundTexture,
-        scale: 2
-        // anchor: 0.5,
-        // position: { x: x, y: y }
-    });
-    console.log("w " + backgroundSprite.width);
-    console.log("h " + backgroundSprite.height);
+  const backgroundTexture = await Assets.load("/img/background.png");
+  const backgroundSprite = new Sprite({
+    texture: backgroundTexture,
+    scale: scale
+  });
 
-
-    const w = backgroundSprite.width;
-    const h = backgroundSprite.height;
-
-    const boxTexture = await Assets.load("/img/box.svg");
-    const boxSprites = [
-        BoxSprite(0.440 * w, 0.250 * h),
-        BoxSprite(0.395 * w, 0.250 * h),
-        BoxSprite(0.350 * w, 0.250 * h),
-        BoxSprite(0.300 * w, 0.250 * h, -Math.PI / 12),
-    ];
-    // const boxSprite = BoxSprite(0,0);
-
-    app.stage.addChild(backgroundSprite);
-
-    boxSprites.forEach((box) => {
-        app.stage.addChild(box);
-    })
+  const boxAssets = await Assets.load([
+    {alias: "box-0", src: "/img/box-0.svg"},
+    {alias: "box-1", src: "/img/box-1.svg"},
+    {alias: "box-2", src: "/img/box-2.svg"},
+    {alias: "box-3", src: "/img/box-3.svg"},
+    {alias: "box-4", src: "/img/box-4.svg"},
+    {alias: "box-5", src: "/img/box-5.svg"}]);
 
 
+  const boxSprites = [
+    BoxSprite("box-0", 0.928, 0.774),
+    BoxSprite("box-0", 0.883, 0.774),
+    BoxSprite("box-0", 0.834, 0.776, -0.12 * Math.PI),
+    BoxSprite("box-0", 0.686, 0.774),
+    BoxSprite("box-0", 0.638, 0.774),
+    BoxSprite("box-0", 0.592, 0.774),
+    BoxSpriteL(14, "box-0", 0.556, 0.774),
+    BoxSprite("box-1", 0.440, 0.774),
+    BoxSprite("box-1", 0.392, 0.774),
+    BoxSprite("box-1", 0.344, 0.774),
+    BoxSprite("box-1", 0.296, 0.776, -0.12 * Math.PI),
+    BoxSprite("box-1", 0.318, 0.642),
+    BoxSprite("box-1", 0.364, 0.642),
+    BoxSprite("box-1", 0.412, 0.642),
+    BoxSpriteL(14, "box-1", 0.454, 0.642),
+    BoxSprite("box-2", 0.566, 0.642),
+    BoxSprite("box-2", 0.612, 0.642),
+    BoxSprite("box-2", 0.658, 0.642),
+    BoxSprite("box-2", 0.706, 0.644, 0.12 * Math.PI),
+    BoxSprite("box-2", 0.685, 0.508),
+    BoxSprite("box-2", 0.640, 0.508),
+    BoxSprite("box-2", 0.592, 0.508),
+    BoxSpriteL(18, "box-2", 0.554, 0.508),
+    BoxSprite("box-3", 0.442, 0.508),
+    BoxSprite("box-3", 0.395, 0.508),
+    BoxSprite("box-3", 0.347, 0.508),
+    BoxSprite("box-3", 0.300, 0.510, -0.12 * Math.PI),
+    BoxSprite("box-3", 0.321, 0.382),
+    BoxSprite("box-3", 0.367, 0.382),
+    BoxSprite("box-3", 0.414, 0.382),
+    BoxSpriteL(14, "box-3", 0.454, 0.382),
+    BoxSprite("box-4", 0.568, 0.382),
+    BoxSprite("box-4", 0.614, 0.382),
+    BoxSprite("box-4", 0.660, 0.382),
+    BoxSprite("box-4", 0.710, 0.384, 0.12 * Math.PI),
+    BoxSprite("box-4", 0.688, 0.246),
+    BoxSprite("box-4", 0.643, 0.246),
+    BoxSprite("box-4", 0.597, 0.246),
+    BoxSpriteL(16, "box-4", 0.556, 0.246),
+    BoxSprite("box-5", 0.442, 0.246),
+    BoxSprite("box-5", 0.396, 0.246),
+    BoxSprite("box-5", 0.349, 0.246),
+    BoxSprite("box-5", 0.298, 0.248, -0.1 * Math.PI),
+    BoxSprite("box-5", 0.108, 0.154, -0.06 * Math.PI),
+    BoxSprite("box-5", 0.154, 0.142, 0.08 * Math.PI),
+    BoxSprite("box-5", 0.101, 0.246),
+    BoxSprite("box-5", 0.142, 0.246),
+    BoxSprite("box-5", 0.101, 0.320),
+    BoxSprite("box-5", 0.142, 0.320),
+    BoxSprite("box-5", 0.101, 0.394),
+    BoxSprite("box-5", 0.142, 0.394),
+    BoxSprite("box-5", 0.101, 0.472),
+    BoxSprite("box-5", 0.142, 0.472),
+  ];
 
-    let direction = 1;
-    let speed = 5;
+  app.stage.addChild(backgroundSprite);
 
-    // Ticker.targetFPMS = 0.006;
-
-    let floppyTicker = new Ticker();
-    // console.log(floppyTicker.deltaTime);
-    // floppyTicker.speed = 1;
-    floppyTicker.maxFPS = 10;
-    // floppyTicker.minFPS = 1;
-    floppyTicker.add(ticker => {
-        // console.log("deltaTime=" + floppyTicker.deltaTime);
-        // console.log("deltaMS=" + floppyTicker.deltaMS);
-        // console.log("elapsedMS=" + floppyTicker.elapsedMS);
-        // console.log("lastTime=" + floppyTicker.lastTime);
-        // console.log("targetFPMS=" + Ticker.targetFPMS);
-        // console.log("maxFPS=" + floppyTicker.maxFPS);
-        // console.log("minFPS=" + floppyTicker.minFPS);
-        // console.log("--------------------------------");
-
-        // if (ticker.lastTime > 10000) {
-        //     ticker.stop();
-        // }
-        if (boxSprites.y > 250) {
-            direction = -1;
-        }
-        if (boxSprites.y <= 50) {
-            direction = 1;
-        }
-        boxSprites.y += (100 / 1000) * ticker.deltaMS * direction;
-        // floppySprite.rotation += 2 * Math.PI / 360;
-
-        // if (floppyTicker.maxFPS < 60) {
-        //     floppyTicker.maxFPS += 1;
-        // }
-    });
-
-    // floppyTicker.start();
-
-    window.addEventListener('keydown', function(e) {
-        switch(e.key) {
-            case 'ArrowRight': {
-                boxSprites.x += 10;
-                break;
-            }
-            case 'ArrowLeft': {
-                boxSprites.x -= 10;
-                break;
-            }
-            case 'ArrowUp': {
-                boxSprites.y -= 10;
-                break;
-            }
-            case 'ArrowDown': {
-                boxSprites.y += 10; }
-        }
-    });
+  boxSprites.forEach((box) => {
+    app.stage.addChild(box);
+  })
 
 
+  // Ticker.targetFPMS = 0.006;
 
-    function BoxSprite(x, y, r) {
-        return new Sprite({
-            texture: boxTexture,
-            anchor: 0.5,
-            scale: 2 / 2.4,
-            rotation: r,
-            position: { x: x, y: y }
-        });
+  let floppyTicker = new Ticker();
+  // console.log(floppyTicker.deltaTime);
+  // floppyTicker.speed = 1;
+  floppyTicker.maxFPS = 10;
+  // floppyTicker.minFPS = 1;
+  floppyTicker.add(ticker => {
+    // console.log("deltaTime=" + floppyTicker.deltaTime);
+    // console.log("deltaMS=" + floppyTicker.deltaMS);
+    // console.log("elapsedMS=" + floppyTicker.elapsedMS);
+    // console.log("lastTime=" + floppyTicker.lastTime);
+    // console.log("targetFPMS=" + Ticker.targetFPMS);
+    // console.log("maxFPS=" + floppyTicker.maxFPS);
+    // console.log("minFPS=" + floppyTicker.minFPS);
+    // console.log("--------------------------------");
+
+    // if (ticker.lastTime > 10000) {
+    //     ticker.stop();
+    // }
+    if (boxSprites.y > 250) {
+      direction = -1;
     }
+    if (boxSprites.y <= 50) {
+      direction = 1;
+    }
+    boxSprites.y += (100 / 1000) * ticker.deltaMS * direction;
+    // floppySprite.rotation += 2 * Math.PI / 360;
+
+    // if (floppyTicker.maxFPS < 60) {
+    //     floppyTicker.maxFPS += 1;
+    // }
+  });
+
+  // floppyTicker.start();
+
+  window.addEventListener('keydown', function (e) {
+    switch (e.key) {
+      case 'ArrowRight': {
+        boxSprites.x += 10;
+        break;
+      }
+      case 'ArrowLeft': {
+        boxSprites.x -= 10;
+        break;
+      }
+      case 'ArrowUp': {
+        boxSprites.y -= 10;
+        break;
+      }
+      case 'ArrowDown': {
+        boxSprites.y += 10;
+      }
+    }
+  });
+
+  function BoxSprite(box, x, y, r) {
+    return BoxSprite_(boxAssets[box], x, y, r)
+  }
+
+  function BoxSprite_(texture, x, y, r) {
+    return new Sprite({
+      texture: texture,
+      alpha: 0.5,
+      anchor: 0.5,
+      scale: scale / 2.35,
+      rotation: r,
+      position: {x: x * backgroundSprite.width, y: y * backgroundSprite.height}
+    });
+  }
+
+  function BoxSpriteL(crop, box, x, y, r) {
+    const texture = boxAssets[box];
+    const croppedTexture = new Texture({
+      source: texture.source,
+      frame: new Rectangle(
+        crop,
+        0,
+        texture.width - crop,
+        texture.height
+      )
+    });
+    return BoxSprite_(croppedTexture, x, y, r)
+  }
 
 })();
 
