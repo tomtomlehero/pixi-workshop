@@ -92,41 +92,44 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
   })
 
 
-  // Ticker.targetFPMS = 0.006;
-
   let floppyTicker = new Ticker();
-  // console.log(floppyTicker.deltaTime);
-  // floppyTicker.speed = 1;
-  floppyTicker.maxFPS = 10;
-  // floppyTicker.minFPS = 1;
+  floppyTicker.maxFPS = 1;
+
+  // floppyTicker.add(ticker => {
+  //   logTickerInfo(ticker);
+  // });
+
+  let n = 0;
   floppyTicker.add(ticker => {
-    // console.log("deltaTime=" + floppyTicker.deltaTime);
-    // console.log("deltaMS=" + floppyTicker.deltaMS);
-    // console.log("elapsedMS=" + floppyTicker.elapsedMS);
-    // console.log("lastTime=" + floppyTicker.lastTime);
-    // console.log("targetFPMS=" + Ticker.targetFPMS);
-    // console.log("maxFPS=" + floppyTicker.maxFPS);
-    // console.log("minFPS=" + floppyTicker.minFPS);
-    // console.log("--------------------------------");
-
-    // if (ticker.lastTime > 10000) {
-    //     ticker.stop();
-    // }
-    if (boxSprites.y > 250) {
-      direction = -1;
+    console.log("N #" + ++n);
+    if (n % 10 === 0 && n < 100) {
+      const fps = 1 + (n / 10) / 2.0;
+      console.log("INCREASING FPS: " + fps);
+      ticker.maxFPS = fps;
     }
-    if (boxSprites.y <= 50) {
-      direction = 1;
-    }
-    boxSprites.y += (100 / 1000) * ticker.deltaMS * direction;
-    // floppySprite.rotation += 2 * Math.PI / 360;
-
-    // if (floppyTicker.maxFPS < 60) {
-    //     floppyTicker.maxFPS += 1;
-    // }
   });
 
-  // floppyTicker.start();
+  const boxes = [];
+
+  floppyTicker.add(ticker => {
+    if ((n + 1) % 10 === 0) {
+      boxes.push(new Box());
+    }
+
+    for (let sprite of boxSprites) {
+      sprite.visible = false;
+    }
+
+
+    for (let box of boxes) {
+      boxSprites[box.pos].visible = true;
+      box.pos++;
+    }
+
+  });
+
+
+    floppyTicker.start();
 
   window.addEventListener('keydown', function (e) {
     switch (e.key) {
@@ -159,6 +162,7 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
       anchor: 0.5,
       scale: scale / 2.35,
       rotation: r,
+      visible: false,
       position: {x: x * backgroundSprite.width, y: y * backgroundSprite.height}
     });
   }
@@ -177,6 +181,23 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
     return BoxSprite_(croppedTexture, x, y, r)
   }
 
+  class Box {
+    constructor() {
+      this.pos = 0;
+    }
+  }
+
+
+  function logTickerInfo(ticker) {
+    console.log("speed=" + ticker.speed);
+    console.log("deltaTime=" + ticker.deltaTime);
+    console.log("deltaMS=" + ticker.deltaMS);
+    console.log("elapsedMS=" + ticker.elapsedMS);
+    console.log("lastTime=" + ticker.lastTime);
+    console.log("targetFPMS=" + Ticker.targetFPMS);
+    console.log("maxFPS=" + ticker.maxFPS);
+    console.log("minFPS=" + ticker.minFPS);
+    console.log("--------------------------------");
+  }
+
 })();
-
-
