@@ -12,7 +12,7 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
   app.canvas.style.position = "absolute";
   document.body.appendChild(app.canvas);
 
-  const scale = 2.4;
+  const scale = 3;
 
   const backgroundTexture = await Assets.load("/img/background.png");
   const backgroundSprite = new Sprite({
@@ -85,10 +85,44 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
     BoxSprite("box-5", 0.142, 0.472),
   ];
 
+  const marioAssets = await Assets.load([
+    {alias: "mario-0", src: "/img/mario.svg"},
+    {alias: "mario-1", src: "/img/mario.svg"},
+    {alias: "mario-2", src: "/img/mario.svg"},
+    {alias: "mario-3", src: "/img/mario.svg"},
+    {alias: "mario-4", src: "/img/mario.svg"},
+    {alias: "mario-5", src: "/img/mario.svg"},
+    {alias: "luigi-0", src: "/img/mario.svg"},
+    {alias: "luigi-1", src: "/img/mario.svg"},
+    {alias: "luigi-2", src: "/img/mario.svg"},
+    {alias: "luigi-3", src: "/img/mario.svg"},
+    {alias: "luigi-4", src: "/img/mario.svg"},
+    {alias: "luigi-5", src: "/img/mario.svg"},
+  ]);
+
+  const marioSprites = [
+    MarioSprite("mario-0", 0.770, 0.830),
+    MarioSprite("mario-1", 0.750, 0.830),
+    MarioSprite("mario-2", 0.750, 0.586),
+    MarioSprite("mario-3", 0.750, 0.566),
+    MarioSprite("mario-4", 0.750, 0.318),
+    MarioSprite("mario-5", 0.750, 0.298),
+    MarioSprite("luigi-0", 0.250, 0.730),
+    MarioSprite("luigi-1", 0.250, 0.720),
+    MarioSprite("luigi-2", 0.250, 0.470),
+    MarioSprite("luigi-3", 0.250, 0.450),
+    MarioSprite("luigi-4", 0.250, 0.185),
+    MarioSprite("luigi-5", 0.230, 0.185),
+  ];
+
   app.stage.addChild(backgroundSprite);
 
   boxSprites.forEach((box) => {
     app.stage.addChild(box);
+  })
+
+  marioSprites.forEach((mario) => {
+    app.stage.addChild(mario);
   })
 
 
@@ -120,7 +154,6 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
       sprite.visible = false;
     }
 
-
     for (let box of boxes) {
       boxSprites[box.pos].visible = true;
       box.pos++;
@@ -128,27 +161,57 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
 
   });
 
+  let marioPosition = 2;
+  let luigiPosition = 6;
+  marioSprites[marioPosition].visible = true;
+  marioSprites[luigiPosition].visible = true;
 
-    floppyTicker.start();
+  floppyTicker.start();
 
   window.addEventListener('keydown', function (e) {
     switch (e.key) {
-      case 'ArrowRight': {
-        boxSprites.x += 10;
+      case 'a': {
+        if (luigiPosition === 6) {
+          luigiPosition = 8;
+        } else if (luigiPosition === 8) {
+          luigiPosition = 10;
+        }
         break;
       }
-      case 'ArrowLeft': {
-        boxSprites.x -= 10;
+
+      case 's': {
+        if (luigiPosition === 10) {
+          luigiPosition = 8;
+        } else if (luigiPosition === 8) {
+          luigiPosition = 6;
+        }
         break;
       }
-      case 'ArrowUp': {
-        boxSprites.y -= 10;
+
+      case 'p': {
+        if (marioPosition === 0) {
+          marioPosition = 2;
+        } else if ( marioPosition === 2) {
+          marioPosition = 4;
+        }
         break;
       }
-      case 'ArrowDown': {
-        boxSprites.y += 10;
+
+      case 'l': {
+        if (marioPosition === 4) {
+          marioPosition = 2;
+        } else if ( marioPosition === 2) {
+          marioPosition = 0;
+        }
+        break;
       }
+
     }
+    for (let sprite of marioSprites) {
+      sprite.visible = false;
+    }
+    marioSprites[marioPosition].visible = true;
+    marioSprites[luigiPosition].visible = true;
   });
 
   function BoxSprite(box, x, y, r) {
@@ -180,6 +243,24 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
     });
     return BoxSprite_(croppedTexture, x, y, r)
   }
+
+
+  function MarioSprite(mario, x, y, r) {
+    return MarioSprite_(marioAssets[mario], x, y, r)
+  }
+
+  function MarioSprite_(texture, x, y, r) {
+    return new Sprite({
+      texture: texture,
+      alpha: 0.5,
+      anchor: 0.5,
+      scale: scale / 0.9,
+      // rotation: r,
+      visible: false,
+      position: {x: x * backgroundSprite.width, y: y * backgroundSprite.height}
+    });
+  }
+
 
   class Box {
     constructor() {
