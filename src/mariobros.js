@@ -12,7 +12,7 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
   app.canvas.style.position = "absolute";
   document.body.appendChild(app.canvas);
 
-  const scale = 3;
+  const scale = 2;
 
   const backgroundTexture = await Assets.load("/img/background.png");
   const backgroundSprite = new Sprite({
@@ -126,29 +126,34 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
   })
 
 
-  let floppyTicker = new Ticker();
-  floppyTicker.maxFPS = 1;
-
-  // floppyTicker.add(ticker => {
-  //   logTickerInfo(ticker);
-  // });
 
   let n = 0;
-  floppyTicker.add(ticker => {
-    console.log("N #" + ++n);
-    if (n % 10 === 0 && n < 100) {
-      const fps = 1 + (n / 10) / 2.0;
-      console.log("INCREASING FPS: " + fps);
-      ticker.maxFPS = fps;
-    }
-  });
-
   const boxes = [];
 
+  let floppyTicker = new Ticker();
+
   floppyTicker.add(ticker => {
-    if ((n + 1) % 10 === 0) {
+    n++;
+    console.log("-- #" + n + "--");
+    changeRate(ticker);
+    pushNewBox();
+    moveBoxes();
+  });
+
+
+  function changeRate(ticker) {
+    if ((n - 1) % 10 === 0 && n < 100) {
+      const fps = 2 + (n / 10) / 2.0;
+      console.log("INCREASING RATE: " + fps + " FPS");
+      ticker.maxFPS = fps;
+    }
+  }
+
+  function pushNewBox() {
+    if ((n - 1) % 10 === 0) {
       boxes.push(new Box());
     }
+
 
     for (let sprite of boxSprites) {
       sprite.visible = false;
@@ -156,15 +161,29 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
 
     for (let box of boxes) {
       boxSprites[box.pos].visible = true;
-      box.pos++;
     }
+  }
 
-  });
+  function moveBoxes() {
+    for (let box of boxes) {
+      if (box.pos < 52) {
+        box.pos++;
+      }
+    }
+  }
+
+  function displayMarioAndLuigi() {
+    for (let sprite of marioSprites) {
+      sprite.visible = false;
+    }
+    marioSprites[marioPosition].visible = true;
+    marioSprites[luigiPosition].visible = true;
+  }
 
   let marioPosition = 2;
   let luigiPosition = 6;
-  marioSprites[marioPosition].visible = true;
-  marioSprites[luigiPosition].visible = true;
+
+  displayMarioAndLuigi();
 
   floppyTicker.start();
 
@@ -207,11 +226,9 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
       }
 
     }
-    for (let sprite of marioSprites) {
-      sprite.visible = false;
-    }
-    marioSprites[marioPosition].visible = true;
-    marioSprites[luigiPosition].visible = true;
+
+    displayMarioAndLuigi();
+
   });
 
   function BoxSprite(box, x, y, r) {
