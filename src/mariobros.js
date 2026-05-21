@@ -73,15 +73,15 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
     BoxSprite("box-5", 0.396, 0.246),
     BoxSprite("box-5", 0.349, 0.246),
     BoxSprite("box-5", 0.298, 0.248, -0.1 * Math.PI),
-    BoxSprite("box-5", 0.108, 0.154, -0.06 * Math.PI),
     BoxSprite("box-5", 0.154, 0.142, 0.08 * Math.PI),
+    BoxSprite("box-5", 0.108, 0.154, -0.06 * Math.PI),
     BoxSprite("box-5", 0.101, 0.246),
-    BoxSprite("box-5", 0.142, 0.246),
     BoxSprite("box-5", 0.101, 0.320),
-    BoxSprite("box-5", 0.142, 0.320),
     BoxSprite("box-5", 0.101, 0.394),
-    BoxSprite("box-5", 0.142, 0.394),
     BoxSprite("box-5", 0.101, 0.472),
+    BoxSprite("box-5", 0.142, 0.246),
+    BoxSprite("box-5", 0.142, 0.320),
+    BoxSprite("box-5", 0.142, 0.394),
     BoxSprite("box-5", 0.142, 0.472),
   ];
 
@@ -126,7 +126,6 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
   })
 
 
-
   let n = 0;
   const boxes = [];
 
@@ -137,12 +136,13 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
     console.log("-- #" + n + "--");
     changeRate(ticker);
     pushNewBox();
+    displayBoxes();
     moveBoxes();
   });
 
 
   function changeRate(ticker) {
-    if ((n - 1) % 10 === 0 && n < 100) {
+    if ((n - 1) % 10 === 0 && n < 2) {
       const fps = 2 + (n / 10) / 2.0;
       console.log("INCREASING RATE: " + fps + " FPS");
       ticker.maxFPS = fps;
@@ -153,12 +153,12 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
     if ((n - 1) % 10 === 0) {
       boxes.push(new Box());
     }
+  }
 
-
+  function displayBoxes() {
     for (let sprite of boxSprites) {
       sprite.visible = false;
     }
-
     for (let box of boxes) {
       boxSprites[box.pos].visible = true;
     }
@@ -166,11 +166,55 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
 
   function moveBoxes() {
     for (let box of boxes) {
-      if (box.pos < 52) {
+      if (box.pos < 42) {
         box.pos++;
+      } else if (box.pos === 42) {
+        ship(box);
       }
     }
   }
+
+  const shipmentRow1 = [45, 46, 47, 48];
+  const shipmentRow2 = [49, 50, 51, 52];
+  let lastShippedPos = 0;
+
+  function ship(box) {
+    if (lastShippedPos === 49) {
+      // TODO end of shipment batch
+    }
+
+    let shipmentRow;
+    if (shipmentRow2.includes(lastShippedPos) || lastShippedPos === 0) {
+      console.log("SHIPPING ROW 2");
+      shipmentRow = 2;
+    } else if (shipmentRow1.includes(lastShippedPos)) {
+      console.log("SHIPPING ROW 1");
+      shipmentRow = 1;
+    }
+    let shipmentTicker = new Ticker();
+    shipmentTicker.maxFPS = 4;
+    shipmentTicker.add(ticker => {
+
+      if (box.pos === lastShippedPos - 1 || box.pos === 52) {
+        lastShippedPos = box.pos;
+        ticker.stop();
+      } else if (shipmentRow === 1) {
+        box.pos++;
+      } else if (shipmentRow === 2) {
+        if (box.pos === 43) {
+          box.pos = 49;
+        } else {
+          box.pos++;
+        }
+      }
+
+
+      displayBoxes();
+
+    });
+    shipmentTicker.start();
+  }
+
 
   function displayMarioAndLuigi() {
     for (let sprite of marioSprites) {
@@ -210,7 +254,7 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
       case 'p': {
         if (marioPosition === 0) {
           marioPosition = 2;
-        } else if ( marioPosition === 2) {
+        } else if (marioPosition === 2) {
           marioPosition = 4;
         }
         break;
@@ -219,16 +263,14 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
       case 'l': {
         if (marioPosition === 4) {
           marioPosition = 2;
-        } else if ( marioPosition === 2) {
+        } else if (marioPosition === 2) {
           marioPosition = 0;
         }
         break;
       }
-
     }
 
     displayMarioAndLuigi();
-
   });
 
   function BoxSprite(box, x, y, r) {
@@ -281,7 +323,7 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
 
   class Box {
     constructor() {
-      this.pos = 0;
+      this.pos = 40;
     }
   }
 
