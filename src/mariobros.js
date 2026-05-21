@@ -179,35 +179,42 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
   let lastShippedPos = 0;
 
   function ship(box) {
-    if (lastShippedPos === 49) {
-      // TODO end of shipment batch
-    }
 
     let shipmentRow;
     if (shipmentRow2.includes(lastShippedPos) || lastShippedPos === 0) {
-      console.log("SHIPPING ROW 2");
-      shipmentRow = 2;
-    } else if (shipmentRow1.includes(lastShippedPos)) {
-      console.log("SHIPPING ROW 1");
       shipmentRow = 1;
+    } else if (shipmentRow1.includes(lastShippedPos)) {
+      shipmentRow = 2;
     }
     let shipmentTicker = new Ticker();
     shipmentTicker.maxFPS = 4;
     shipmentTicker.add(ticker => {
 
-      if (box.pos === lastShippedPos - 1 || box.pos === 52) {
-        lastShippedPos = box.pos;
-        ticker.stop();
-      } else if (shipmentRow === 1) {
-        box.pos++;
+      if (shipmentRow === 1) {
+
+        if (box.pos === lastShippedPos - 5 || box.pos === 48) {
+          lastShippedPos = box.pos;
+          ticker.stop();
+        } else {
+          box.pos++;
+        }
+
       } else if (shipmentRow === 2) {
-        if (box.pos === 43) {
+
+        if (box.pos === lastShippedPos + 4) {
+          lastShippedPos = box.pos;
+          ticker.stop();
+        } else if (box.pos === 43) {
           box.pos = 49;
         } else {
           box.pos++;
         }
       }
 
+    if (lastShippedPos === 49) {
+        // TODO end of shipment batch
+        console.log("END OF SHIPMENT BATCH");
+    }
 
       displayBoxes();
 
