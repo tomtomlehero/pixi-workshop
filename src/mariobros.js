@@ -133,7 +133,7 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
 
   floppyTicker.add(ticker => {
     n++;
-    console.log("-- #" + n + "--");
+    // console.log("-- #" + n + "--");
     changeRate(ticker);
     pushNewBox();
     displayBoxes();
@@ -143,7 +143,7 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
 
   function changeRate(ticker) {
     if ((n - 1) % 10 === 0 && n < 2) {
-      const fps = 2 + (n / 10) / 2.0;
+      const fps = 4 + (n / 10) / 2.0;
       console.log("INCREASING RATE: " + fps + " FPS");
       ticker.maxFPS = fps;
     }
@@ -160,6 +160,7 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
       sprite.visible = false;
     }
     for (let box of boxes) {
+      // console.log("box.pos=" + box.pos);
       boxSprites[box.pos].visible = true;
     }
   }
@@ -186,28 +187,42 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
     } else if (shipmentRow1.includes(lastShippedPos)) {
       shipmentRow = 2;
     }
-    let shipmentTicker = new Ticker();
+    let shipmentTicker = new TickerWithName("Toto" + performance.now());
     shipmentTicker.maxFPS = 4;
     shipmentTicker.add(ticker => {
+
+      logTickerInfo(ticker);
+
+      if (!ticker.started) {
+        console.log("DESTROYING TICKER");
+        ticker.destroy()
+      }
+
+      console.log("Ticker " + ticker.name + " Shipping row " + shipmentRow + " - lastShippedPos=" + lastShippedPos + " box.pos=" + box.pos);
 
       if (shipmentRow === 1) {
 
         if (box.pos === lastShippedPos - 5 || box.pos === 48) {
           lastShippedPos = box.pos;
           ticker.stop();
+          // ticker.destroy();
+          console.log("----- #1 STOP SHIPPING ----");
         } else {
           box.pos++;
+          console.log("#1 box.pos=" + box.pos);
         }
 
       } else if (shipmentRow === 2) {
-
         if (box.pos === lastShippedPos + 4) {
           lastShippedPos = box.pos;
           ticker.stop();
+          // ticker.destroy();
+          console.log("----- #2 STOP SHIPPING ----");
         } else if (box.pos === 43) {
           box.pos = 49;
         } else {
           box.pos++;
+          console.log("#2 box.pos=" + box.pos);
         }
       }
 
@@ -334,17 +349,29 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
     }
   }
 
+  class TickerWithName extends Ticker{
+    constructor(name) {
+      super();
+      this.name = name;
+    }
+  }
+
+
 
   function logTickerInfo(ticker) {
-    console.log("speed=" + ticker.speed);
-    console.log("deltaTime=" + ticker.deltaTime);
-    console.log("deltaMS=" + ticker.deltaMS);
-    console.log("elapsedMS=" + ticker.elapsedMS);
-    console.log("lastTime=" + ticker.lastTime);
-    console.log("targetFPMS=" + Ticker.targetFPMS);
-    console.log("maxFPS=" + ticker.maxFPS);
-    console.log("minFPS=" + ticker.minFPS);
-    console.log("--------------------------------");
+    const currentTime = performance.now();
+    const timeSinceLastFrame = currentTime - ticker.lastTime;
+    console.log(`Time since last frame: ${timeSinceLastFrame}ms`);
+
+    // console.log("speed=" + ticker.speed);
+    // console.log("deltaTime=" + ticker.deltaTime);
+    // console.log("deltaMS=" + ticker.deltaMS);
+    // console.log("elapsedMS=" + ticker.elapsedMS);
+    // console.log("lastTime=" + ticker.lastTime);
+    // console.log("targetFPMS=" + Ticker.targetFPMS);
+    // console.log("maxFPS=" + ticker.maxFPS);
+    // console.log("minFPS=" + ticker.minFPS);
+    // console.log("--------------------------------");
   }
 
 })();
