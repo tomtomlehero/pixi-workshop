@@ -136,14 +136,15 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
     // console.log("-- #" + n + "--");
     changeRate(ticker);
     pushNewBox();
-    displayBoxes();
     moveBoxes();
+    displayBoxes();
   });
 
 
   function changeRate(ticker) {
     if ((n - 1) % 10 === 0 && n < 2) {
-      const fps = 4 + (n / 10) / 2.0;
+      // const fps = 4 + (n / 10) / 2.0;
+      const fps = 5;
       console.log("INCREASING RATE: " + fps + " FPS");
       ticker.maxFPS = fps;
     }
@@ -160,17 +161,17 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
       sprite.visible = false;
     }
     for (let box of boxes) {
-      // console.log("box.pos=" + box.pos);
       boxSprites[box.pos].visible = true;
     }
   }
 
   function moveBoxes() {
     for (let box of boxes) {
-      if (box.pos < 42) {
+      if (box.pos <= 42) {
         box.pos++;
-      } else if (box.pos === 42) {
-        ship(box);
+        if (box.pos === 42) {
+          ship(box);
+        }
       }
     }
   }
@@ -187,48 +188,47 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
     } else if (shipmentRow1.includes(lastShippedPos)) {
       shipmentRow = 2;
     }
-    let shipmentTicker = new TickerWithName("Toto" + performance.now());
-    shipmentTicker.maxFPS = 4;
+    let shipmentTicker = new Ticker();
+    shipmentTicker.maxFPS = 3;
     shipmentTicker.add(ticker => {
-
-      logTickerInfo(ticker);
-
-      if (!ticker.started) {
-        console.log("DESTROYING TICKER");
-        ticker.destroy()
-      }
-
-      console.log("Ticker " + ticker.name + " Shipping row " + shipmentRow + " - lastShippedPos=" + lastShippedPos + " box.pos=" + box.pos);
 
       if (shipmentRow === 1) {
 
-        if (box.pos === lastShippedPos - 5 || box.pos === 48) {
+        if ((box.pos >= 45 && box.pos === lastShippedPos - 5) || box.pos === 48) {
           lastShippedPos = box.pos;
           ticker.stop();
-          // ticker.destroy();
-          console.log("----- #1 STOP SHIPPING ----");
         } else {
           box.pos++;
-          console.log("#1 box.pos=" + box.pos);
         }
 
       } else if (shipmentRow === 2) {
-        if (box.pos === lastShippedPos + 4) {
+        if (box.pos >= 49 && box.pos === lastShippedPos + 4) {
           lastShippedPos = box.pos;
           ticker.stop();
-          // ticker.destroy();
-          console.log("----- #2 STOP SHIPPING ----");
         } else if (box.pos === 43) {
           box.pos = 49;
         } else {
           box.pos++;
-          console.log("#2 box.pos=" + box.pos);
         }
       }
 
     if (lastShippedPos === 49) {
         // TODO end of shipment batch
-        console.log("END OF SHIPMENT BATCH");
+      lastShippedPos = 0;
+      for (let box of boxes) {
+        if (box.pos >= 45) {
+          boxes.pop();
+          boxes.pop();
+          boxes.pop();
+          boxes.pop();
+          boxes.pop();
+          boxes.pop();
+          boxes.pop();
+          boxes.pop();
+        }
+      }
+
+      console.log("END OF SHIPMENT BATCH");
     }
 
       displayBoxes();
@@ -345,17 +345,9 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
 
   class Box {
     constructor() {
-      this.pos = 40;
+      this.pos = 35;
     }
   }
-
-  class TickerWithName extends Ticker{
-    constructor(name) {
-      super();
-      this.name = name;
-    }
-  }
-
 
 
   function logTickerInfo(ticker) {
@@ -363,15 +355,15 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
     const timeSinceLastFrame = currentTime - ticker.lastTime;
     console.log(`Time since last frame: ${timeSinceLastFrame}ms`);
 
-    // console.log("speed=" + ticker.speed);
-    // console.log("deltaTime=" + ticker.deltaTime);
-    // console.log("deltaMS=" + ticker.deltaMS);
-    // console.log("elapsedMS=" + ticker.elapsedMS);
-    // console.log("lastTime=" + ticker.lastTime);
-    // console.log("targetFPMS=" + Ticker.targetFPMS);
-    // console.log("maxFPS=" + ticker.maxFPS);
-    // console.log("minFPS=" + ticker.minFPS);
-    // console.log("--------------------------------");
+    console.log("speed=" + ticker.speed);
+    console.log("deltaTime=" + ticker.deltaTime);
+    console.log("deltaMS=" + ticker.deltaMS);
+    console.log("elapsedMS=" + ticker.elapsedMS);
+    console.log("lastTime=" + ticker.lastTime);
+    console.log("targetFPMS=" + Ticker.targetFPMS);
+    console.log("maxFPS=" + ticker.maxFPS);
+    console.log("minFPS=" + ticker.minFPS);
+    console.log("--------------------------------");
   }
 
 })();
