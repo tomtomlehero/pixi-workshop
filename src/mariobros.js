@@ -14,7 +14,7 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
 
   const scale = 2;
 
-  const backgroundTexture = await Assets.load("/img/background.png");
+  const backgroundTexture = await Assets.load("/img/dev/background.png");
   const backgroundSprite = new Sprite({
     texture: backgroundTexture,
     scale: scale
