@@ -13,6 +13,8 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
   document.body.appendChild(app.canvas);
 
   const scale = 2;
+  const mainFPS = 2.0
+  const shippingFPS = 4.0
 
   const backgroundTexture = await Assets.load("/img/dev/background.png");
   const backgroundSprite = new Sprite({
@@ -128,12 +130,12 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
 
   let n = 0;
   const boxes = [];
+  let lastShippingPos = 0;
 
-  let floppyTicker = new Ticker();
+  let mainTicker = new Ticker();
 
-  floppyTicker.add(ticker => {
+  mainTicker.add(ticker => {
     n++;
-    // console.log("-- #" + n + "--");
     changeRate(ticker);
     pushNewBox();
     moveBoxes();
@@ -144,7 +146,7 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
   function changeRate(ticker) {
     if ((n - 1) % 10 === 0 && n < 2) {
       // const fps = 4 + (n / 10) / 2.0;
-      const fps = 3;
+      const fps = mainFPS;
       console.log("INCREASING RATE: " + fps + " FPS");
       ticker.maxFPS = fps;
     }
@@ -176,63 +178,61 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
     }
   }
 
-  let lastShippingPos = 0;
-
   function ship(box) {
 
     let shippingRow;
-    let bottomShippingPos;
+    let targetShippingPos;
     switch (lastShippingPos) {
       case 0:
         shippingRow = 1;
-        bottomShippingPos = 48;
+        targetShippingPos = 48;
         break;
       case 48:
         shippingRow = 2;
-        bottomShippingPos = 52;
+        targetShippingPos = 52;
         break;
       case 52:
         shippingRow = 1;
-        bottomShippingPos = 47;
+        targetShippingPos = 47;
         break;
       case 47:
         shippingRow = 2;
-        bottomShippingPos = 51;
+        targetShippingPos = 51;
         break;
       case 51:
         shippingRow = 1;
-        bottomShippingPos = 46;
+        targetShippingPos = 46;
         break;
       case 46:
         shippingRow = 2;
-        bottomShippingPos = 50;
+        targetShippingPos = 50;
         break;
       case 50:
         shippingRow = 1;
-        bottomShippingPos = 45;
+        targetShippingPos = 45;
         break;
       case 45:
         shippingRow = 2;
-        bottomShippingPos = 49;
+        targetShippingPos = 49;
         break;
     }
 
-    lastShippingPos = bottomShippingPos
+    lastShippingPos = targetShippingPos
 
     let shipmentTicker = new Ticker();
-    shipmentTicker.maxFPS = 6;
+    shipmentTicker.maxFPS = shippingFPS;
     shipmentTicker.add(ticker => {
 
       if (shippingRow === 1) {
 
-        if (box.pos >= 45 && box.pos === bottomShippingPos) {
-          // ticker.stop();
+        if (box.pos >= 45 && box.pos === targetShippingPos) {
+          ticker.stop();
         } else {
           box.pos++;
         }
 
       } else if (shippingRow === 2) {
-        if (box.pos >= 49 && box.pos === bottomShippingPos) {
+        if (box.pos >= 49 && box.pos === targetShippingPos) {
           ticker.stop();
           if (lastShippingPos === 49) {
             dispatchTruck();
@@ -244,30 +244,30 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
         }
       }
 
-    if (lastShippingPos === 49) {
-        // TODO end of shipment batch
-        console.log("END OF SHIPMENT BATCH");
-        lastShippingPos = 0;
-        boxes.shift();
-        boxes.shift();
-        boxes.shift();
-        boxes.shift();
-        boxes.shift();
-        boxes.shift();
-        boxes.shift();
-        boxes.shift();
-    }
-
       displayBoxes();
-
     });
     shipmentTicker.start();
   }
 
   function dispatchTruck() {
+    mainTicker.stop();
+    lastShippingPos = 0;
 
+    let dispatchTruckTicker = new Ticker();
+    dispatchTruckTicker.maxFPS = 2;
+    let dispatchTruckFrame = 0;
+    dispatchTruckTicker.add(ticker => {
+      dispatchTruckFrame++;
+      if (dispatchTruckFrame === 5) {
+        boxes.splice(0, 8);
+        displayBoxes();
+      } else if (dispatchTruckFrame === 8) {
+        mainTicker.start();
+        dispatchTruckTicker.stop();
+      }
+    });
+    dispatchTruckTicker.start();
   }
-
 
 
   function displayMarioAndLuigi() {
@@ -283,7 +283,7 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
 
   displayMarioAndLuigi();
 
-  floppyTicker.start();
+  mainTicker.start();
 
   window.addEventListener('keydown', function (e) {
     switch (e.key) {
@@ -368,7 +368,6 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
       alpha: 0.5,
       anchor: 0.5,
       scale: scale / 0.9,
-      // rotation: r,
       visible: false,
       position: {x: x * backgroundSprite.width, y: y * backgroundSprite.height}
     });
@@ -377,7 +376,7 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
 
   class Box {
     constructor() {
-      this.pos = 30;
+      this.pos = -1;
     }
   }
 
