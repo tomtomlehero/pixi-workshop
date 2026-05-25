@@ -226,7 +226,7 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
       if (shippingRow === 1) {
 
         if (box.pos >= 45 && box.pos === bottomShippingPos) {
-          ticker.stop();
+          // ticker.stop();
         } else {
           box.pos++;
         }
@@ -234,6 +234,9 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
       } else if (shippingRow === 2) {
         if (box.pos >= 49 && box.pos === bottomShippingPos) {
           ticker.stop();
+          if (lastShippingPos === 49) {
+            dispatchTruck();
+          }
         } else if (box.pos === 43) {
           box.pos = 49;
         } else {
@@ -260,6 +263,11 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
     });
     shipmentTicker.start();
   }
+
+  function dispatchTruck() {
+
+  }
+
 
 
   function displayMarioAndLuigi() {
