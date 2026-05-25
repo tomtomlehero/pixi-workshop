@@ -12,14 +12,17 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
   app.canvas.style.position = "absolute";
   document.body.appendChild(app.canvas);
 
-  const scale = 2;
-  const mainFPS = 2.0
-  const shippingFPS = 4.0
+  const SCALE = 2;
+  const MAIN_FPS = 6.0
+  const SHIPPING_FPS = 4.0
+
+  const MARIO_INITIAL_POSITION = 2;
+  const LUIGI_INITIAL_POSITION = 6;
 
   const backgroundTexture = await Assets.load("/img/dev/background.png");
   const backgroundSprite = new Sprite({
     texture: backgroundTexture,
-    scale: scale
+    scale: SCALE
   });
 
   const boxAssets = await Assets.load([
@@ -94,12 +97,14 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
     {alias: "mario-3", src: "/img/mario.svg"},
     {alias: "mario-4", src: "/img/mario.svg"},
     {alias: "mario-5", src: "/img/mario.svg"},
+    {alias: "mario-6", src: "/img/mario.svg"},
     {alias: "luigi-0", src: "/img/mario.svg"},
     {alias: "luigi-1", src: "/img/mario.svg"},
     {alias: "luigi-2", src: "/img/mario.svg"},
     {alias: "luigi-3", src: "/img/mario.svg"},
     {alias: "luigi-4", src: "/img/mario.svg"},
     {alias: "luigi-5", src: "/img/mario.svg"},
+    {alias: "luigi-6", src: "/img/mario.svg"},
   ]);
 
   const marioSprites = [
@@ -115,6 +120,9 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
     MarioSprite("luigi-3", 0.250, 0.450),
     MarioSprite("luigi-4", 0.250, 0.185),
     MarioSprite("luigi-5", 0.230, 0.185),
+    // Mario and Luigi having rest
+    MarioSprite("mario-6", 0.820, 0.590),
+    MarioSprite("luigi-6", 0.165, 0.730),
   ];
 
   app.stage.addChild(backgroundSprite);
@@ -132,8 +140,13 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
   const boxes = [];
   let lastShippingPos = 0;
 
-  let mainTicker = new Ticker();
+  let marioAndLuigiMovable = true;
+  let marioPosition = MARIO_INITIAL_POSITION;
+  let luigiPosition = LUIGI_INITIAL_POSITION;
 
+  displayMarioAndLuigi();
+
+  let mainTicker = new Ticker();
   mainTicker.add(ticker => {
     n++;
     changeRate(ticker);
@@ -142,11 +155,13 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
     displayBoxes();
   });
 
+  mainTicker.start();
+
 
   function changeRate(ticker) {
     if ((n - 1) % 10 === 0 && n < 2) {
       // const fps = 4 + (n / 10) / 2.0;
-      const fps = mainFPS;
+      const fps = MAIN_FPS;
       console.log("INCREASING RATE: " + fps + " FPS");
       ticker.maxFPS = fps;
     }
@@ -220,7 +235,7 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
     lastShippingPos = targetShippingPos
 
     let shipmentTicker = new Ticker();
-    shipmentTicker.maxFPS = shippingFPS;
+    shipmentTicker.maxFPS = SHIPPING_FPS;
     shipmentTicker.add(ticker => {
 
       if (shippingRow === 1) {
@@ -251,7 +266,11 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
 
   function dispatchTruck() {
     mainTicker.stop();
+    marioAndLuigiMovable = false;
     lastShippingPos = 0;
+
+    let lastMarioPosition = marioPosition;
+    let lastLuigiPosition = luigiPosition;
 
     let dispatchTruckTicker = new Ticker();
     dispatchTruckTicker.maxFPS = 2;
@@ -262,7 +281,15 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
         boxes.splice(0, 8);
         displayBoxes();
       } else if (dispatchTruckFrame === 8) {
+        marioPosition = 12;
+        luigiPosition = 13;
+        displayMarioAndLuigi();
+      } else if (dispatchTruckFrame === 12) {
+        marioPosition = lastMarioPosition;
+        luigiPosition = lastLuigiPosition;
+        displayMarioAndLuigi();
         mainTicker.start();
+        marioAndLuigiMovable = true;
         dispatchTruckTicker.stop();
       }
     });
@@ -278,14 +305,13 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
     marioSprites[luigiPosition].visible = true;
   }
 
-  let marioPosition = 2;
-  let luigiPosition = 6;
-
-  displayMarioAndLuigi();
-
-  mainTicker.start();
 
   window.addEventListener('keydown', function (e) {
+
+    if (!marioAndLuigiMovable) {
+      return;
+    }
+
     switch (e.key) {
       case 'a': {
         if (luigiPosition === 6) {
@@ -336,7 +362,7 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
       texture: texture,
       alpha: 0.5,
       anchor: 0.5,
-      scale: scale / 2.35,
+      scale: SCALE / 2.35,
       rotation: r,
       visible: false,
       position: {x: x * backgroundSprite.width, y: y * backgroundSprite.height}
@@ -367,8 +393,8 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
       texture: texture,
       alpha: 0.5,
       anchor: 0.5,
-      scale: scale / 0.9,
-      visible: false,
+      scale: SCALE / 0.9,
+      visible: true,
       position: {x: x * backgroundSprite.width, y: y * backgroundSprite.height}
     });
   }
