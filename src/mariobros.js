@@ -144,14 +144,14 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
   function changeRate(ticker) {
     if ((n - 1) % 10 === 0 && n < 2) {
       // const fps = 4 + (n / 10) / 2.0;
-      const fps = 5;
+      const fps = 3;
       console.log("INCREASING RATE: " + fps + " FPS");
       ticker.maxFPS = fps;
     }
   }
 
   function pushNewBox() {
-    if ((n - 1) % 10 === 0) {
+    if ((n - 1) % 6 === 0) {
       boxes.push(new Box());
     }
   }
@@ -176,34 +176,63 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
     }
   }
 
-  const shipmentRow1 = [45, 46, 47, 48];
-  const shipmentRow2 = [49, 50, 51, 52];
-  let lastShippedPos = 0;
+  let lastShippingPos = 0;
 
   function ship(box) {
 
-    let shipmentRow;
-    if (shipmentRow2.includes(lastShippedPos) || lastShippedPos === 0) {
-      shipmentRow = 1;
-    } else if (shipmentRow1.includes(lastShippedPos)) {
-      shipmentRow = 2;
+    let shippingRow;
+    let bottomShippingPos;
+    switch (lastShippingPos) {
+      case 0:
+        shippingRow = 1;
+        bottomShippingPos = 48;
+        break;
+      case 48:
+        shippingRow = 2;
+        bottomShippingPos = 52;
+        break;
+      case 52:
+        shippingRow = 1;
+        bottomShippingPos = 47;
+        break;
+      case 47:
+        shippingRow = 2;
+        bottomShippingPos = 51;
+        break;
+      case 51:
+        shippingRow = 1;
+        bottomShippingPos = 46;
+        break;
+      case 46:
+        shippingRow = 2;
+        bottomShippingPos = 50;
+        break;
+      case 50:
+        shippingRow = 1;
+        bottomShippingPos = 45;
+        break;
+      case 45:
+        shippingRow = 2;
+        bottomShippingPos = 49;
+        break;
     }
+
+    lastShippingPos = bottomShippingPos
+
     let shipmentTicker = new Ticker();
-    shipmentTicker.maxFPS = 3;
+    shipmentTicker.maxFPS = 6;
     shipmentTicker.add(ticker => {
 
-      if (shipmentRow === 1) {
+      if (shippingRow === 1) {
 
-        if ((box.pos >= 45 && box.pos === lastShippedPos - 5) || box.pos === 48) {
-          lastShippedPos = box.pos;
+        if (box.pos >= 45 && box.pos === bottomShippingPos) {
           ticker.stop();
         } else {
           box.pos++;
         }
 
-      } else if (shipmentRow === 2) {
-        if (box.pos >= 49 && box.pos === lastShippedPos + 4) {
-          lastShippedPos = box.pos;
+      } else if (shippingRow === 2) {
+        if (box.pos >= 49 && box.pos === bottomShippingPos) {
           ticker.stop();
         } else if (box.pos === 43) {
           box.pos = 49;
@@ -212,23 +241,18 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
         }
       }
 
-    if (lastShippedPos === 49) {
+    if (lastShippingPos === 49) {
         // TODO end of shipment batch
-      lastShippedPos = 0;
-      for (let box of boxes) {
-        if (box.pos >= 45) {
-          boxes.pop();
-          boxes.pop();
-          boxes.pop();
-          boxes.pop();
-          boxes.pop();
-          boxes.pop();
-          boxes.pop();
-          boxes.pop();
-        }
-      }
-
-      console.log("END OF SHIPMENT BATCH");
+        console.log("END OF SHIPMENT BATCH");
+        lastShippingPos = 0;
+        boxes.shift();
+        boxes.shift();
+        boxes.shift();
+        boxes.shift();
+        boxes.shift();
+        boxes.shift();
+        boxes.shift();
+        boxes.shift();
     }
 
       displayBoxes();
@@ -345,7 +369,7 @@ import {Application, Graphics, Assets, Texture, Sprite, Ticker, Rectangle} from 
 
   class Box {
     constructor() {
-      this.pos = 35;
+      this.pos = 30;
     }
   }
 
